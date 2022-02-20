@@ -268,12 +268,24 @@ def processImage(image1,imageName):
     font = cv2.FONT_HERSHEY_SIMPLEX
     fontscale = 1/3*6
     for i in range(nPoints):
-        for j in range(len(detected_keypoints[i])):
-            cv2.circle(frameClone, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
-            cv2.putText(frameClone,detected_keypoints[i][j][4], detected_keypoints[i][j][0:2], font, fontscale, colors[i], 2, cv2.LINE_AA, False)
+        try:
+            for j in range(len(detected_keypoints[i])):
+                print("detected_keypoints[i][j]",detected_keypoints[i][j])
+                cv2.circle(frameClone, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
+                cv2.putText(frameClone,detected_keypoints[i][j][4], detected_keypoints[i][j][0:2], font, fontscale, colors[i], 2, cv2.LINE_AA, False)
+                if "Wr" in detected_keypoints[i][j][4]:
+                    print("wrting file for "+imageName)
+                    f = open(str(args.image_folder+"/Pose/"+ imageName.split('.')[0]+".txt"), "w")
+                    f.write(str(detected_keypoints[i][j][4])+","+str(detected_keypoints[i][j][0:2])+":")
+
+        except IndexError:
+            print("index error")
+
 #cv2.imshow("Keypoints",frameClone)
     
 
+    cv2.imwrite(args.image_folder+"/Pose/"+ imageName , frameClone)
+    return
     counter = 0
     valid_pairs, invalid_pairs = getValidPairs(output,frameWidth,frameHeight,detected_keypoints)
     print("pointsWithPartCollection",pointsWithPartCollection)
@@ -286,8 +298,8 @@ def processImage(image1,imageName):
           B = np.int32(keypoints_list[index.astype(int), 0])
           A = np.int32(keypoints_list[index.astype(int), 1])
           cv2.line(frameClone, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
-    cv2.imwrite(args.image_folder+"/Pose/"+ imageName , frameClone)
-    return
+    
+    
     pairWiseKeyPointsFound = []
     pairWiseKeyPointsFoundCollection = []
     pointsNotFoundInPairs = []
