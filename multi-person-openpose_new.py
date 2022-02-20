@@ -251,20 +251,27 @@ def processImage(image1,imageName):
         probMap = cv2.resize(probMap, (image1.shape[1], image1.shape[0]))
         keypoints = getKeypoints(probMap, threshold)
         print("Keypoints - {} : {}".format(keypointsMapping[part], keypoints))
-        if "Elb" in keypointsMapping[part] or "Wr" in keypointsMapping[part]:
-            pointsWithParts = [keypointsMapping[part],[keypoints[0][0],keypoints[0][1]]]
-            pointsWithPartCollection.append(pointsWithParts)
+        # if "Elb" in keypointsMapping[part] or "Wr" in keypointsMapping[part]:
+        #     pointsWithParts = [keypointsMapping[part],[keypoints[0][0],keypoints[0][1]]]
+        #     pointsWithPartCollection.append(pointsWithParts)
 
         keypoints_with_id = []
         for i in range(len(keypoints)):
-            keypoints_with_id.append(keypoints[i] + (keypoint_id,))
+            keypoints_with_id.append(keypoints[i] + (keypoint_id,keypointsMapping[part]))
             keypoints_list = np.vstack([keypoints_list, keypoints[i]])
             keypoint_id += 1
             detected_keypoints.append(keypoints_with_id)
-            cv2.circle(image1, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
+            #cv2.circle(image1, detected_keypoints[i][0:2], 5, colors[i], -1, cv2.LINE_AA)
 
 
     frameClone = image1.copy()
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fontscale = 1/3*6
+    for i in range(nPoints):
+        for j in range(len(detected_keypoints[i])):
+            cv2.circle(frameClone, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
+            cv2.putText(frameClone,detected_keypoints[i][j][4], detected_keypoints[i][j][0:2], font, fontscale, colors[i], 2, cv2.LINE_AA, False)
+#cv2.imshow("Keypoints",frameClone)
     
 
     counter = 0
@@ -279,7 +286,7 @@ def processImage(image1,imageName):
           B = np.int32(keypoints_list[index.astype(int), 0])
           A = np.int32(keypoints_list[index.astype(int), 1])
           cv2.line(frameClone, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
-    cv2.imwrite(args.image_folder+"/Poses/"+ imageName , frameClone)
+    cv2.imwrite(args.image_folder+"/Pose/"+ imageName , frameClone)
     return
     pairWiseKeyPointsFound = []
     pairWiseKeyPointsFoundCollection = []
@@ -413,9 +420,9 @@ elif args.device == "gpu":
 #image1 = cv2.imread(args.image_folder)
 #predictor = Predictor(weights_path='fpn_inception.h5')
 #print(predictor)
-for filename in os.listdir(args.image_folder):
+for filename in os.listdir(args.image_folder+"/Unblurred/"):
     print("filename",filename)
-    img = cv2.imread(os.path.join(args.image_folder,filename))
+    img = cv2.imread(os.path.join(args.image_folder+"/Unblurred/",filename))
     processImage(img,filename)
 
 
