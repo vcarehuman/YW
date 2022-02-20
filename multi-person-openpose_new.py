@@ -225,7 +225,7 @@ def getPersonwiseKeypoints(valid_pairs, invalid_pairs,keypoints_list):
                     personwiseKeypoints = np.vstack([personwiseKeypoints, row])
     return personwiseKeypoints
 
-def processImage(image1,imageName,modelForPersonDetection):
+def processImage(image1,imageName):
     frameWidth = image1.shape[1]
     frameHeight = image1.shape[0]
 
@@ -260,8 +260,8 @@ def processImage(image1,imageName,modelForPersonDetection):
             keypoints_with_id.append(keypoints[i] + (keypoint_id,))
             keypoints_list = np.vstack([keypoints_list, keypoints[i]])
             keypoint_id += 1
-
-        detected_keypoints.append(keypoints_with_id)
+            detected_keypoints.append(keypoints_with_id)
+            cv2.circle(image1, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
 
 
     frameClone = image1.copy()
@@ -271,6 +271,16 @@ def processImage(image1,imageName,modelForPersonDetection):
     valid_pairs, invalid_pairs = getValidPairs(output,frameWidth,frameHeight,detected_keypoints)
     print("pointsWithPartCollection",pointsWithPartCollection)
     personwiseKeypoints = getPersonwiseKeypoints(valid_pairs, invalid_pairs,keypoints_list)
+    for i in range(17):
+      for n in range(len(personwiseKeypoints)):
+          index = personwiseKeypoints[n][np.array(POSE_PAIRS[i])]
+          if -1 in index:
+              continue
+          B = np.int32(keypoints_list[index.astype(int), 0])
+          A = np.int32(keypoints_list[index.astype(int), 1])
+          cv2.line(frameClone, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
+    cv2.imwrite(args.image_folder+"/Poses/"+ imageName , frameClone)
+    return
     pairWiseKeyPointsFound = []
     pairWiseKeyPointsFoundCollection = []
     pointsNotFoundInPairs = []
@@ -348,7 +358,7 @@ def processImage(image1,imageName,modelForPersonDetection):
             pointsNotFoundInPairs.append(pointsWithPartCollection[i])
             pointFound = False
 
-    personList = findPeople(modelForPersonDetection, image1)
+    personList = [] #findPeople(modelForPersonDetection, image1)
     #finding the right person box for the point that are not found in pairs
     for i in range(len(pointsNotFoundInPairs)):
         for j in range(len(personList)):
@@ -380,7 +390,7 @@ def processImage(image1,imageName,modelForPersonDetection):
                 croppedImage = frameClone[y1:y2,x1:x2]
                 imgname = imageName.rsplit( ".", 1 )[ 0 ] + "_" + str(counter)+".jpg";
                 print(imgname)
-                cv2.imwrite(args.image_folder+imgname , croppedImage)
+                #cv2.imwrite(args.image_folder+imgname , croppedImage)
                 counter = counter + 1
 
 
@@ -398,7 +408,7 @@ elif args.device == "gpu":
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     print("Using GPU device")
 #Load the Caffe model 
-modelForPersonDetection = cv2.dnn.readNetFromCaffe("/content/gdrive/MyDrive/MobileNetSSDModel/MobileNetSSD_deploy.prototxt", "/content/gdrive/MyDrive/MobileNetSSDModel/MobileNetSSD_deploy.caffemodel")
+#modelForPersonDetection = cv2.dnn.readNetFromCaffe("/content/gdrive/MyDrive/MobileNetSSDModel/MobileNetSSD_deploy.prototxt", "/content/gdrive/MyDrive/MobileNetSSDModel/MobileNetSSD_deploy.caffemodel")
 
 #image1 = cv2.imread(args.image_folder)
 #predictor = Predictor(weights_path='fpn_inception.h5')
@@ -406,7 +416,7 @@ modelForPersonDetection = cv2.dnn.readNetFromCaffe("/content/gdrive/MyDrive/Mobi
 for filename in os.listdir(args.image_folder):
     print("filename",filename)
     img = cv2.imread(os.path.join(args.image_folder,filename))
-    processImage(img,filename,modelForPersonDetection)
+    processImage(img,filename)
 
 
 
