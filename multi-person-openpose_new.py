@@ -437,6 +437,3 @@ for filename in os.listdir(args.image_folder+"/Unblurred/"):
     img = cv2.imread(os.path.join(args.image_folder+"/Unblurred/",filename))
     processImage(img,filename)
 
-
-
-
