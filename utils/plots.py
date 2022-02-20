@@ -468,4 +468,6 @@ def save_one_box(xyxy, im, file='image.jpg', gain=1.02, pad=10, square=False, BG
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
         cv2.imwrite(str(increment_path(file).with_suffix('.jpg')), crop)
+        zoomedImage = cv2.resize(crop, None, fx=4, fy=4)
+        cv2.imwrite(str(increment_path(file).with_suffix('.jpg')).split('.')[0]+'Zoomed'+'.jpg', zoomedImage)
     return crop
