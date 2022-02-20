@@ -466,10 +466,11 @@ def save_one_box(xyxy, im, file='image.jpg', gain=1.02, pad=10, square=False, BG
     b[:, 2:] = b[:, 2:] * gain + pad  # box wh * gain + pad
     xyxy = xywh2xyxy(b).long()
     clip_coords(xyxy, im.shape)
+    coord = [(int(xyxy[0, 1]),int(xyxy[0, 3])), (int(xyxy[0, 0]),int(xyxy[0, 2]))]
     crop = im[int(xyxy[0, 1]):int(xyxy[0, 3]), int(xyxy[0, 0]):int(xyxy[0, 2]), ::(1 if BGR else -1)]
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
-        cv2.imwrite(str(increment_path(file).with_suffix('.jpg')), crop)
-        zoomedImage = cv2.resize(crop, None, fx=4, fy=4)
-        cv2.imwrite(str(increment_path(file).with_suffix('.jpg')).split('.')[0]+'Zoomed'+'.jpg', zoomedImage)
-    return crop
+        #cv2.imwrite(str(increment_path(file).with_suffix('.jpg')), crop)
+        #zoomedImage = cv2.resize(crop, None, fx=4, fy=4)
+        #cv2.imwrite(str(increment_path(file).with_suffix('.jpg')).split('.')[0]+'Zoomed'+'.jpg', zoomedImage)
+    return coord
