@@ -83,6 +83,7 @@ class Annotator:
         # Add one xyxy box to image with label
         if self.pil or not is_ascii(label):
             self.draw.rectangle(box, width=self.lw, outline=color)  # box
+
             if label:
                 w, h = self.font.getsize(label)  # text width, height
                 outside = box[1] - h >= 0  # label fits outside box
@@ -91,9 +92,10 @@ class Annotator:
                                      box[0] + w + 1,
                                      box[1] + 1 if outside else box[1] + h + 1), fill=color)
                 # self.draw.text((box[0], box[1]), label, fill=txt_color, font=self.font, anchor='ls')  # for PIL>8.0
-                self.draw.text((box[0], box[1] - h if outside else box[1]), label, fill=txt_color, font=self.font)
+
         else:  # cv2
             p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
+            print("p1=",p1,"p2=",p2, "Label =",label)
             cv2.rectangle(self.im, p1, p2, color, thickness=self.lw, lineType=cv2.LINE_AA)
             if label:
                 tf = max(self.lw - 1, 1)  # font thickness
